@@ -1,0 +1,7 @@
+First Name:	Last Name:	Account Balance:
+___________________________________________________________
+Kameron    	Taylor    	$ 10,269.00
+Sasha      	Smith     	$ 23,611.00
+Ariel      	Jerry     	$  9,002.50
+Fay        	Tracey    	$  5,153.00
+Dennis     	Becks     	$ 22,658.50
