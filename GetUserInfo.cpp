@@ -25,13 +25,13 @@ void createAccountBalance()
     ofstream outputFile;
     outputFile.open("accountBalance.txt");
  
-    outputFile << "First Name:\tLast Name:\tAccount Balance:\n";
-    outputFile << "___________________________________________________________\n";
-    outputFile << "Kameron    \tTaylor    \t$ 10,269.00\n";
-    outputFile << "Sasha      \tSmith     \t$ 23,611.00\n";
-    outputFile << "Ariel      \tJerry     \t$  9,002.50\n";
-    outputFile << "Fay        \tTracey    \t$  5,153.00\n";
-    outputFile << "Dennis     \tBecks     \t$ 22,658.50\n";
+    outputFile << "First Name:\tLast Name:\tSaving Balance:\tChecking Balance:\n";
+    outputFile << "__________________________________________________________________\n";
+    outputFile << "Kameron    \tTaylor    \t$ 10269.04     \t$ 1050.50\n";
+    outputFile << "Sasha      \tSmith     \t$ 23611.50     \t$ 5000.00\n";
+    outputFile << "Ariel      \tJerry     \t$ 9002.56      \t$ 2011.45\n";
+    outputFile << "Fay        \tTracey    \t$ 5153.00      \t$  347.13\n";
+    outputFile << "Dennis     \tBecks     \t$ 22658.50     \t$   50.62\n";
 
     outputFile.close();
 
