@@ -10,21 +10,37 @@ using namespace std;
 //Function Prototypes
 void loadUserData(string [], string [], string [], string [], int [], int[], const int);
 void getAccountBalances(double [], double[], const int);
-bool displayLogin();
+void createNewBalance(string [], string [], double [], double [], const int);
+bool displayLogin(int [], int, string [], int&);
 int userIDValidation(int [], const int);
 bool userPasswordValidation(string [], const int, int);
-void mainMenu();
+void mainMenu(double [], double[], int, const int);
+void withdrawl(double [], double [], int, const int);
+void deposit(double [], double [], int, const int);
+void transfer(double [], double [], int, const int);
+double* chooseAccount(double [], double [], int, const int);
 
 
 int main()
 {
+    const int SIZE = 5; //Constant amount of users.
+    string firstName[SIZE], lastName[SIZE], password[SIZE], phoneNumber[SIZE]; //Arrays for name and password.
+    int userID[SIZE], pin[SIZE], user; //Arrays for ID and PIN numbers.
+    double savingsBalance[SIZE], checkingsBalance[SIZE]; //Array for account balances.
+
+      /****************************************
+     * Loading User Data to System
+     ****************************************/
+
+    loadUserData(firstName, lastName, password, phoneNumber, userID, pin, SIZE);
+    getAccountBalances(savingsBalance, checkingsBalance, SIZE);
+
     bool valid = true;
-
-    valid = displayLogin();
-
+    valid = displayLogin(userID, SIZE, password, user);
     if(valid == true)
     {
-        mainMenu();
+        mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+        createNewBalance(firstName, lastName, savingsBalance, checkingsBalance, SIZE);         //Updated the txt file with new balances before exiting program.
     }
     else
     {
@@ -70,7 +86,7 @@ void loadUserData(string firstName[], string lastName[], string password[], stri
      * Function to get account balances
      ****************************************/
 
-void getAccountBalances(double savingsBalance[], double checkingsBalance[], int SIZE)
+void getAccountBalances(double savingsBalance[], double checkingsBalance[], const int SIZE)
 {
     ifstream inputFile;
     string menu; //Stores first two lines of txt file
@@ -105,41 +121,23 @@ void getAccountBalances(double savingsBalance[], double checkingsBalance[], int 
      * Function to display homepage
      ****************************************/
 
-bool displayLogin()
+bool displayLogin(int userID[], int SIZE, string password[], int &user)
 {
-
-     /****************************************
-     * Variable Declaration
-     ****************************************/
-
-    const int SIZE = 5; //Constant amount of users.
-    string firstName[SIZE], lastName[SIZE], password[SIZE], phoneNumber[SIZE]; //Arrays for name and password.
-    int userID[SIZE], pin[SIZE]; //Arrays for ID and PIN numbers.
-    double savingsBalance[SIZE], checkingsBalance[SIZE]; //Array for account balances.
-
-
-    /****************************************
-     * Loading User Data to System
-     ****************************************/
-
-    loadUserData(firstName, lastName, password, phoneNumber, userID, pin, SIZE);
-    getAccountBalances(savingsBalance, checkingsBalance, SIZE);
-
     /*************************************************
      * Display Login Page and Validate Credentials
      *************************************************/
 
-    int userIDElement, userPin;
+    int userPin;
     bool valid;
 
     cout << "      Welcome!\n";
     cout << "\nEnter your User ID: ";
     
-    userIDElement = userIDValidation(userID, SIZE);
+    user = userIDValidation(userID, SIZE);
     
     cout << "\nEnter your Password: ";
 
-    valid = userPasswordValidation(password, SIZE, userIDElement);
+    valid = userPasswordValidation(password, SIZE, user);
     
     return valid;
 
@@ -213,24 +211,253 @@ bool userPasswordValidation(string password[], const int SIZE, int element)
      * Function displays menu once inside ATM account
      **************************************************/
 
-void mainMenu()
+void mainMenu(double savingsBalance[], double checkingsBalance[], int user, const int SIZE)
 {
 	int option;
-
-	cout << "1) View Account Balance" << endl;
+   
+    cout << "\n      Account Menu\n";
+    cout << "________________________\n";
+	cout << "\n1) View Account Balance" << endl;
 	cout << "2) Withdrawl" << endl;
 	cout << "3) Deposit" << endl;
 	cout << "4) Transfer Between Accounts" << endl;
 	cout << "5) Leave" << endl;
 	cin >> option;
 
+
 	switch (option)
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		default:
+	{	case 1: cout << "Hi!";
+            break;
+		case 2: withdrawl(savingsBalance, checkingsBalance, user, SIZE);
+            break;
+		case 3: deposit(savingsBalance, checkingsBalance, user, SIZE);
+            break;
+		case 4: transfer(checkingsBalance, savingsBalance, user, SIZE);
+            break;
+		case 5: exit(1);
+            break;
+		default: cout << "Please select a valid option";
 			break;
+    }
 }
 
+void withdrawl(double savingsBalance[], double checkingsBalance[], int user, const int SIZE)
+{
+	int choice;
+	char confirm;
+	bool invalid;		// flag
+    double *accountPick;
+
+    accountPick = chooseAccount(savingsBalance, checkingsBalance, user, SIZE);
+
+	cout << "How much would you like to withdrawl?" << endl;
+    cout << "1) $20" << endl;
+    cout << "2) $40" << endl;
+    cout << "3) $60" << endl;
+    cout << "4) $80" << endl;
+    cout << "5) $100" << endl;
+    cout << "6) Back" << endl;
+	
+    do
+        {
+	    invalid = false;									   // resets flag
+
+	    cin >> choice;
+
+	    switch (choice)
+	    {
+	    case 1: choice = 20;
+		    break;
+	    case 2: choice = 40;
+		    break;
+	    case 3: choice = 60;
+	    	break;
+	    case 4: choice = 80;
+	    	break;
+	    case 5: choice = 100;
+	    	break;
+	    case 6: mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+	    	break;
+	    default:
+	    	cout << "Please enter valid choice." << endl;		// keeps looping until valid choice is entered
+	    	invalid = true;
+		    break;
+		}
+
+		cout << "Confirm? (Y/N) ";								// confirming action
+		cin >> confirm;
+
+		if (confirm == 'y' || confirm == 'Y')
+		{
+            accountPick -= choice;
+            mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+        }
+		else
+		{
+			cout << "Withdrawl cancelled." << endl;
+			mainMenu(savingsBalance, checkingsBalance, user, SIZE);										// back to main menu 
+		}
+
+	} while (invalid);
+}
+
+void deposit(double savingsBalance[], double checkingsBalance [], int user, const int SIZE)
+{
+	double amount;
+	char confirm;
+    double *accountPick;
+    double amountAccountPick;
+
+    accountPick = chooseAccount(savingsBalance, checkingsBalance, user, SIZE);
+
+	cout << "How much would you like to deposit?" << endl;
+	
+	do														// input validation
+	{
+		cin >> amount;
+
+		if (amount < 0 || amount > 1000)
+			cout << "Error has occured. Please enter valid number." << endl;
+
+	} while (amount < 0 || amount > 1000);
+
+	cout << "Confirm? (Y/N)" << endl;						// confirming action
+	cin >> confirm;
+
+	if (confirm == 'y' || confirm == 'Y')
+	{	amountAccountPick += amount;
+        cout << "Your deposit of $" << amount << " has been made.\n";
+        mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+    }
+	else
+	{
+		cout << "Deposit cancelled." << endl;
+        mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+	}
+
+}
+
+void transfer(double savingsBalance[], double checkingsBalance[], int user, const int SIZE)
+{
+	cout << setprecision(2) << fixed;
+	int choice;
+	double amount;
+	bool invalid;
+	char confirm;
+
+	double check = 0;
+
+	cout << "Choose account to transfer from" << endl;
+	cout << "1) Checking" << endl;
+	cout << "2) Savings" << endl;
+	cout << "3) Back" << endl;
+	
+	do
+	{
+		invalid = false;
+		cin >> choice;
+
+		switch (choice)
+		{
+		case 1: check = checkingsBalance[user];
+			break;
+		case 2: check = savingsBalance[user];
+			break;
+		case 3: mainMenu(savingsBalance, checkingsBalance, user, SIZE);						// return to main menu
+			break;
+		default:
+			cout << "Please enter valid option." << endl;			// keeps going until valid option is selected
+			invalid = true;
+			continue;
+		}
+	} while (invalid);
+
+	// validating amount
+	cout << "How much are you going to transfer? ";	
+	do
+	{
+		invalid = true;
+		cin >> amount;
+
+		if (amount < 0 || amount > 2000)
+			cout << "Error has occured. Please enter valid number." << endl;
+		else if (amount > check)
+			cout << "Insufficient funds. Please try again." << endl;
+		else
+			invalid = false;
+
+	} while (invalid);
+
+	// confirming choice
+	cout << "Confirm transfering $" << amount << "? (Y/N) ";
+	cin >> confirm;
+
+	if (confirm == 'n' || confirm == 'N')
+	{
+		cout << "Transfer cancelled." << endl;
+		mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+	}
+	else
+	{
+		if (choice == 1)
+		{
+			checkingsBalance[user] -= amount;
+			savingsBalance[user] += amount;
+
+			cout << "$" << amount << " was transfered from checking into savings." << endl;
+			mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+		}
+		else if (choice == 2)
+		{
+			savingsBalance[user] -= amount;
+			checkingsBalance[user] += amount;
+
+			cout << "$" << amount << " was tranfered from savings into checking." << endl;
+			mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+		}
+	}
+}
+
+double* chooseAccount(double savingsBalance[], double checkingsBalance[], int user, const int SIZE)
+{
+	int account;
+    double *accountPick;
+
+	cout << "Which account are you choosing from today?" << endl;
+	cout << "1) Checking" << endl;
+	cout << "2) Savings" << endl;
+	cout << "3) Back" << endl;
+	
+		cin >> account;
+
+		switch (account)
+		{
+		case 1: accountPick = checkingsBalance;
+			break;
+		case 2: accountPick = savingsBalance;
+			break;
+		case 3: mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+			break;
+		default: cout << "Please select an option." << endl;
+			break;
+        }
+
+    return accountPick;
+}
+
+void createNewBalance(string firstName[], string lastName[], double savingsBalance[], double checkingsBalance[], const int SIZE)
+{
+    ofstream outputFile;
+    outputFile.open("accountBalance2.txt");
+ 
+    outputFile << "First Name:\tLast Name:\tSaving Balance:\tChecking Balance:\n";
+    outputFile << "__________________________________________________________________\n";
+
+    for(int i = 0; i< SIZE; i++)
+    {
+        cout << fixed << setprecision(2);
+        outputFile << firstName[i] << "\t" << lastName[i] << "\t$ " << savingsBalance[i] << "\t$ " << checkingsBalance[i] << endl;
+    }
+
+    outputFile.close();
+}
