@@ -7,6 +7,8 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
@@ -14,7 +16,7 @@ using namespace std;
 void loadUserData(string [], string [], string [], string [], int [], int[], const int);
 void getAccountBalances(double [], double[], const int);
 void createNewBalance(string [], string[], double [], double [], const int);
-bool displayLogin(int [], int, string [], int&);
+bool displayLogin(int [], string[], string[], int, string [], int&);
 int userIDValidation(int [], const int);
 bool userPasswordValidation(string [], const int, int);
 void mainMenu(double [], double[], int, const int);
@@ -23,6 +25,7 @@ void withdrawl(double [], double [], int, const int);
 void deposit(double [], double [], int, const int);
 void transfer(double [], double [], int, const int);
 char chooseAccount(double [], double [], int, const int);
+void reciept(string [], string [], int [], double [], double [], int);
 
 
 int main()       //     Output updated txt file reflecting new balances. (format it!)
@@ -40,11 +43,13 @@ int main()       //     Output updated txt file reflecting new balances. (format
     getAccountBalances(savingsBalance, checkingsBalance, SIZE);
 
     bool valid = true;
-    valid = displayLogin(userID, SIZE, password, user); //Validates user login credentials
+    valid = displayLogin(userID, firstName, lastName, SIZE, password, user); //Validates user login credentials
     if(valid == true)
     {
         mainMenu(savingsBalance, checkingsBalance, user, SIZE);
-        createNewBalance(firstName, lastName, savingsBalance, checkingsBalance, SIZE);
+        cout << "\nPlease take your receipt\n" << endl; //See "receiptATM.txt" for receipt output.
+        reciept(firstName, lastName, userID, checkingsBalance, savingsBalance, user);
+        createNewBalance(firstName, lastName, savingsBalance, checkingsBalance, SIZE); //See "accountBalances.txt" for updated balances after transactions. 
         exit(1);
 
     }
@@ -127,7 +132,7 @@ void getAccountBalances(double savingsBalance[], double checkingsBalance[], cons
      * Function to display homepage
      ****************************************/
 
-bool displayLogin(int userID[], int SIZE, string password[], int &user)
+bool displayLogin(int userID[], string firstName[], string lastName[], int SIZE, string password[], int &user)
 {
     /*************************************************
      * Display Login Page and Validate Credentials
@@ -144,6 +149,9 @@ bool displayLogin(int userID[], int SIZE, string password[], int &user)
     cout << "\nEnter your Password: ";
 
     valid = userPasswordValidation(password, SIZE, user);
+
+    if(valid == true)
+    cout << "Hello, " << firstName[user] << " " << lastName[user] << "!\n";
     
     return valid;
 
@@ -222,8 +230,10 @@ void mainMenu(double savingsBalance[], double checkingsBalance[], int user, cons
 	int option;
     char exitChoice;
    
-    cout << "\n      Account Menu\n";
-    cout << "________________________\n";
+    cout << " ______________________ \n";
+    cout << "|                      |\n";
+    cout << "|     Account Menu     |\n";
+    cout << "|______________________|\n";
 	cout << "\n1) View Account Balance" << endl;
 	cout << "2) Withdraw" << endl;
 	cout << "3) Deposit" << endl;
@@ -243,7 +253,6 @@ void mainMenu(double savingsBalance[], double checkingsBalance[], int user, cons
 		case 4: transfer(savingsBalance, checkingsBalance, user, SIZE);
             break;
 		case 5: {
-                        //Updated the txt file with new balances before exiting program.exit(1);
                     cout << "Are you sure you want to exit? (Y/N) ";
                     cin >> exitChoice;
 
@@ -573,4 +582,45 @@ void displayAccountBalances(double savingsBalance[], double checkingsBalance[], 
     cout << "Checkings Balance: $" << checkingsBalance[user] << "\nSavings Balance: $" << savingsBalance[user]<< "\n\n";
 
     mainMenu(savingsBalance, checkingsBalance, user, SIZE);
+}
+
+void reciept(string firstName [], string lastName[], int userID [], double checkingsBalance [], double savingsBalance [], int user)
+{
+	ofstream outputFile;
+
+	// getting time
+	time_t now = time(0);
+	tm localtm;
+
+	// time starts 1/1/1970
+	localtime_r(&now, &localtm); 
+
+	// converting time to correct dates
+	int year = localtm.tm_year + 1900;			// adjusting for correct date
+	int month = localtm.tm_mon + 1;				// adjusting for 0 indexing
+	int day = localtm.tm_mday;
+	int hr = localtm.tm_hour;
+	int min = localtm.tm_min;
+	int sec = localtm.tm_sec;
+
+	// open text file for reciept
+	outputFile.open("recieptATM.txt");
+
+	outputFile << "\tATM MACHINE";
+	outputFile << "\n==============================";
+	outputFile << left << setw(14) << "\nTIME" << right << setw(11) << hr << ":" << min << ":" << sec;
+	outputFile << left << setw(14) << "\nDATE" << right << setw(9) << month << "/" << day << "/" << year;
+
+	outputFile << setprecision(2) << fixed;
+	outputFile << left << setw(14) << "\n\nUSER ID" << right << setw(18) << userID[user];
+	outputFile << left << setw(14) << "\nFIRST NAME" << right << setw(17) << firstName[user];
+    outputFile << left << setw(14) << "\nLAST NAME" << right << setw(17) << lastName[user];
+	outputFile << left << setw(14) << "\nCHECKINGS" << right << setw(8) << "$" << setw(9) << checkingsBalance[user];
+	outputFile << left << setw(14) << "\nSAVINGS" << right << setw(8) << "$" << setw(9) << savingsBalance[user];
+	outputFile << left << setw(14) << "\nTOTAL BALANCE" << right << setw(8) << "$" << setw(9) << checkingsBalance[user] + savingsBalance[user];
+	outputFile << "\n==============================";
+	outputFile << "\nThank you for banking with us!";
+
+	outputFile.close();
+
 }
