@@ -1,7 +1,4 @@
 //This is the working ATM code file
-/*TO DO LIST:
-    1. Switch output file names to make a new file name titled "accountBalance.txt"
-    */
 
 #include <iostream>
 #include <fstream>
@@ -562,15 +559,14 @@ char chooseAccount(double savingsBalance[], double checkingsBalance[], int user,
 void createNewBalance(string firstName[], string lastName[], double savingsBalance[], double checkingsBalance[], const int SIZE)
 {
     ofstream outputFile;
-    outputFile.open("accountBalance2.txt");
+    outputFile.open("accountBalance.txt");
  
     outputFile << "First Name:\tLast Name:\tSaving Balance:\tChecking Balance:\n";
     outputFile << "__________________________________________________________________\n";  
     for(int i = 0; i< SIZE; i++)
     {
-        cout << fixed << setprecision(2);
         outputFile << firstName[i] << "\t\t" << lastName[i] << " \t";
-        outputFile << "\t$ " << savingsBalance[i] << "    \t$ " << checkingsBalance[i] << endl;
+        outputFile << fixed << setprecision(2) << "\t$ " << savingsBalance[i] << "    \t$ " << checkingsBalance[i] << endl;
     }
 
     outputFile.close();
