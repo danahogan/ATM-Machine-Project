@@ -25,7 +25,7 @@ char chooseAccount(double [], double [], int, const int);
 void reciept(string [], string [], int [], double [], double [], int);
 
 
-int main()       //     Output updated txt file reflecting new balances. (format it!)
+int main()     
 {
     const int SIZE = 5; //Constant amount of users.
     string firstName[SIZE], lastName[SIZE], password[SIZE], phoneNumber[SIZE]; //Arrays for name and password.
@@ -433,7 +433,7 @@ void deposit(double savingsBalance[], double checkingsBalance [], int user, cons
 	    cin >> confirm;
 
 	    if (confirm == 'y' || confirm == 'Y')
-	    {	checkingsBalance[user] += amount;
+	    {	savingsBalance[user] += amount;
             cout << "Your deposit of $" << amount << " has been made.\n";
             mainMenu(savingsBalance, checkingsBalance, user, SIZE);
         }
